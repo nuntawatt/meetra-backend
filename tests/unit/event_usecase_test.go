@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-wego/wego/internal/entity"
-	eventUC "github.com/go-wego/wego/internal/usecase/event"
-	notifUC "github.com/go-wego/wego/internal/usecase/notification"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
+	eventUC "github.com/nuntawatt/meetra-backend/internal/usecase/event"
+	notifUC "github.com/nuntawatt/meetra-backend/internal/usecase/notification"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,21 +18,21 @@ import (
 
 type mockEventRepo struct{ mock.Mock }
 
-func (m *mockEventRepo) Create(ctx context.Context, e *entity.Event) error {
+func (m *mockEventRepo) Create(ctx context.Context, e *domain.Event) error {
 	return m.Called(ctx, e).Error(0)
 }
-func (m *mockEventRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.Event, error) {
+func (m *mockEventRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
 	args := m.Called(ctx, id)
-	if v, ok := args.Get(0).(*entity.Event); ok {
+	if v, ok := args.Get(0).(*domain.Event); ok {
 		return v, args.Error(1)
 	}
 	return nil, args.Error(1)
 }
-func (m *mockEventRepo) List(ctx context.Context, f entity.EventFilter, pg entity.Pagination) ([]*entity.Event, int, error) {
+func (m *mockEventRepo) List(ctx context.Context, f domain.EventFilter, pg domain.Pagination) ([]*domain.Event, int, error) {
 	args := m.Called(ctx, f, pg)
-	return args.Get(0).([]*entity.Event), args.Int(1), args.Error(2)
+	return args.Get(0).([]*domain.Event), args.Int(1), args.Error(2)
 }
-func (m *mockEventRepo) Update(ctx context.Context, e *entity.Event) error {
+func (m *mockEventRepo) Update(ctx context.Context, e *domain.Event) error {
 	return m.Called(ctx, e).Error(0)
 }
 func (m *mockEventRepo) AddParticipant(ctx context.Context, eventID, userID uuid.UUID) error {
@@ -68,9 +68,9 @@ type mockNotifUC struct{ mock.Mock }
 func (m *mockNotifUC) NotifyJoin(ctx context.Context, hostID, eventID, joinerID uuid.UUID) error {
 	return m.Called(ctx, hostID, eventID, joinerID).Error(0)
 }
-func (m *mockNotifUC) ListForUser(ctx context.Context, userID uuid.UUID) ([]*entity.Notification, error) {
+func (m *mockNotifUC) ListForUser(ctx context.Context, userID uuid.UUID) ([]*domain.Notification, error) {
 	args := m.Called(ctx, userID)
-	return args.Get(0).([]*entity.Notification), args.Error(1)
+	return args.Get(0).([]*domain.Notification), args.Error(1)
 }
 func (m *mockNotifUC) MarkRead(ctx context.Context, id uuid.UUID) error {
 	return m.Called(ctx, id).Error(0)
@@ -119,7 +119,7 @@ func TestCreateEvent(t *testing.T) {
 			notif := &mockNotifUC{}
 
 			if tc.wantErr == nil {
-				repo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Event")).Return(nil)
+				repo.On("Create", mock.Anything, mock.AnythingOfType("*domain.Event")).Return(nil)
 				cache.On("Delete", mock.Anything, "event:list:page:1").Return(nil)
 			}
 
@@ -145,10 +145,10 @@ func TestJoinEvent(t *testing.T) {
 	hostID := uuid.New()
 	userID := uuid.New()
 
-	baseEvent := &entity.Event{
+	baseEvent := &domain.Event{
 		ID:          eventID,
 		HostID:      hostID,
-		Status:      entity.EventStatusPublished,
+		Status:      domain.EventStatusPublished,
 		MaxCapacity: 10,
 	}
 

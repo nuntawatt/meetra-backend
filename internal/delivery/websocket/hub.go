@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-wego/wego/internal/entity"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -31,7 +31,7 @@ var upgrader = websocket.Upgrader{
 type client struct {
 	userID uuid.UUID
 	conn   *websocket.Conn
-	send   chan *entity.Notification
+	send   chan *domain.Notification
 }
 
 // Hub manages all active WebSocket clients and fans out notifications.
@@ -53,7 +53,7 @@ func NewHub(logger *zap.Logger) *Hub {
 // ——— Publisher interface implementation ——————————————————————————————————————
 
 // Publish fans a notification out to all connections for the given userID.
-func (h *Hub) Publish(userID uuid.UUID, n *entity.Notification) {
+func (h *Hub) Publish(userID uuid.UUID, n *domain.Notification) {
 	h.mu.RLock()
 	conns := h.clients[userID]
 	h.mu.RUnlock()
@@ -91,7 +91,7 @@ func (h *Hub) ServeWS(c *gin.Context) {
 	cl := &client{
 		userID: userID,
 		conn:   conn,
-		send:   make(chan *entity.Notification, 32),
+		send:   make(chan *domain.Notification, 32),
 	}
 
 	h.register(cl)

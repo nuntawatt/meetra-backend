@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	internalAuth "github.com/go-wego/wego/internal/auth"
-	"github.com/go-wego/wego/pkg/response"
+	internalAuth "github.com/nuntawatt/meetra-backend/internal/auth"
+	"github.com/nuntawatt/meetra-backend/pkg/response"
 )
 
 // Auth returns a Gin middleware that validates the Bearer JWT access token.

@@ -6,7 +6,7 @@ package user
 import (
 	"context"
 
-	"github.com/go-wego/wego/internal/entity"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -15,16 +15,16 @@ import (
 // dictates the contract — concrete implementations must satisfy it.
 type Repository interface {
 	// Create persists a new user and returns the created record.
-	Create(ctx context.Context, user *entity.User) error
+	Create(ctx context.Context, user *domain.User) error
 
 	// FindByID retrieves a user by their UUID.
-	FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 
 	// FindByEmail retrieves a user by their email address.
-	FindByEmail(ctx context.Context, email string) (*entity.User, error)
+	FindByEmail(ctx context.Context, email string) (*domain.User, error)
 
 	// Update updates mutable user fields (username, avatar_url).
-	Update(ctx context.Context, user *entity.User) error
+	Update(ctx context.Context, user *domain.User) error
 
 	// SoftDelete marks deleted_at so the row is logically deleted.
 	SoftDelete(ctx context.Context, id uuid.UUID) error

@@ -8,8 +8,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	eventUC "github.com/go-wego/wego/internal/usecase/event"
-	userUC "github.com/go-wego/wego/internal/usecase/user"
+	eventUC "github.com/nuntawatt/meetra-backend/internal/usecase/event"
+	userUC "github.com/nuntawatt/meetra-backend/internal/usecase/user"
 )
 
 // cacheRepo is a Redis implementation that satisfies both

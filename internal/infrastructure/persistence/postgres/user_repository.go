@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	userUC "github.com/go-wego/wego/internal/usecase/user"
-	"github.com/go-wego/wego/internal/entity"
+	userUC "github.com/nuntawatt/meetra-backend/internal/usecase/user"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -26,7 +26,7 @@ func NewUserRepo(db *sqlx.DB) userUC.Repository {
 
 // ——— Create ——————————————————————————————————————————————————————————————————
 
-func (r *userRepo) Create(ctx context.Context, u *entity.User) error {
+func (r *userRepo) Create(ctx context.Context, u *domain.User) error {
 	query := `
 		INSERT INTO users (id, username, email, password, role, avatar_url, created_at, updated_at)
 		VALUES (:id, :username, :email, :password, :role, :avatar_url, :created_at, :updated_at)
@@ -44,11 +44,11 @@ func (r *userRepo) Create(ctx context.Context, u *entity.User) error {
 
 // ——— FindByID ————————————————————————————————————————————————————————————————
 
-func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	var u entity.User
+	var u domain.User
 	query := `SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL`
 	if err := r.db.GetContext(ctx, &u, query, id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -61,11 +61,11 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.User, er
 
 // ——— FindByEmail —————————————————————————————————————————————————————————————
 
-func (r *userRepo) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
+func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	var u entity.User
+	var u domain.User
 	query := `SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL`
 	if err := r.db.GetContext(ctx, &u, query, email); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -78,7 +78,7 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*entity.User,
 
 // ——— Update ——————————————————————————————————————————————————————————————————
 
-func (r *userRepo) Update(ctx context.Context, u *entity.User) error {
+func (r *userRepo) Update(ctx context.Context, u *domain.User) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

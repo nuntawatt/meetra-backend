@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	eventUC "github.com/go-wego/wego/internal/usecase/event"
-	"github.com/go-wego/wego/internal/entity"
+	eventUC "github.com/nuntawatt/meetra-backend/internal/usecase/event"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -26,7 +26,7 @@ func NewEventRepo(db *sqlx.DB) eventUC.Repository {
 
 // ——— Create ——————————————————————————————————————————————————————————————————
 
-func (r *eventRepo) Create(ctx context.Context, e *entity.Event) error {
+func (r *eventRepo) Create(ctx context.Context, e *domain.Event) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -45,11 +45,11 @@ func (r *eventRepo) Create(ctx context.Context, e *entity.Event) error {
 
 // ——— FindByID ————————————————————————————————————————————————————————————————
 
-func (r *eventRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.Event, error) {
+func (r *eventRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	var e entity.Event
+	var e domain.Event
 	query := `
 		SELECT e.*,
 			   u.username AS host_username,
@@ -76,9 +76,9 @@ func (r *eventRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.Event, 
 // It returns the matching events AND the total count (for pagination metadata).
 func (r *eventRepo) List(
 	ctx context.Context,
-	filter entity.EventFilter,
-	pg entity.Pagination,
-) ([]*entity.Event, int, error) {
+	filter domain.EventFilter,
+	pg domain.Pagination,
+) ([]*domain.Event, int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -129,7 +129,7 @@ func (r *eventRepo) List(
 	`, where, argIdx, argIdx+1)
 	args = append(args, pg.Limit, pg.Offset())
 
-	var events []*entity.Event
+	var events []*domain.Event
 	if err := r.db.SelectContext(ctx, &events, listQuery, args...); err != nil {
 		return nil, 0, fmt.Errorf("eventRepo.List select: %w", err)
 	}
@@ -139,7 +139,7 @@ func (r *eventRepo) List(
 
 // ——— Update ——————————————————————————————————————————————————————————————————
 
-func (r *eventRepo) Update(ctx context.Context, e *entity.Event) error {
+func (r *eventRepo) Update(ctx context.Context, e *domain.Event) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

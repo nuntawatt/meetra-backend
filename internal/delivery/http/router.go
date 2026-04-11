@@ -2,10 +2,10 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-wego/wego/internal/delivery/http/handler"
-	"github.com/go-wego/wego/internal/delivery/http/middleware"
-	ws "github.com/go-wego/wego/internal/delivery/websocket"
-	"github.com/go-wego/wego/internal/auth"
+	"github.com/nuntawatt/meetra-backend/internal/delivery/http/handler"
+	"github.com/nuntawatt/meetra-backend/internal/delivery/http/middleware"
+	ws "github.com/nuntawatt/meetra-backend/internal/delivery/websocket"
+	"github.com/nuntawatt/meetra-backend/internal/auth"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )

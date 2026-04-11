@@ -14,10 +14,10 @@ import (
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 
-	"github.com/go-wego/wego/internal/bootstrap"
-	"github.com/go-wego/wego/internal/config"
-	deliveryHTTP "github.com/go-wego/wego/internal/delivery/http"
-	"github.com/go-wego/wego/pkg/logger"
+	"github.com/nuntawatt/meetra-backend/internal/bootstrap"
+	"github.com/nuntawatt/meetra-backend/internal/config"
+	deliveryHTTP "github.com/nuntawatt/meetra-backend/internal/delivery/http"
+	"github.com/nuntawatt/meetra-backend/pkg/logger"
 )
 
 func main() {

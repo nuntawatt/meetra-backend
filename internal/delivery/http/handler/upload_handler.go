@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-wego/wego/pkg/response"
+	"github.com/nuntawatt/meetra-backend/pkg/response"
 	"github.com/google/uuid"
 )
 

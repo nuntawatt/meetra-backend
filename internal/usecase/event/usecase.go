@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	notificationUC "github.com/go-wego/wego/internal/usecase/notification"
-	"github.com/go-wego/wego/internal/entity"
+	notificationUC "github.com/nuntawatt/meetra-backend/internal/usecase/notification"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -48,7 +48,7 @@ type ListInput struct {
 
 // ListResult wraps the list response with total count.
 type ListResult struct {
-	Events []*entity.Event `json:"events"`
+	Events []*domain.Event `json:"events"`
 	Total  int             `json:"total"`
 	Page   int             `json:"page"`
 	Limit  int             `json:"limit"`
@@ -58,8 +58,8 @@ type ListResult struct {
 
 // UseCase defines all event business logic operations.
 type UseCase interface {
-	Create(ctx context.Context, hostID uuid.UUID, in CreateInput) (*entity.Event, error)
-	GetByID(ctx context.Context, id uuid.UUID) (*entity.Event, error)
+	Create(ctx context.Context, hostID uuid.UUID, in CreateInput) (*domain.Event, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Event, error)
 	List(ctx context.Context, in ListInput) (*ListResult, error)
 	Join(ctx context.Context, eventID, userID uuid.UUID) error
 	Leave(ctx context.Context, eventID, userID uuid.UUID) error
@@ -89,20 +89,20 @@ func New(
 // ——— Create ——————————————————————————————————————————————————————————————————
 
 // Create validates the time range and persists a new event.
-func (uc *eventUseCase) Create(ctx context.Context, hostID uuid.UUID, in CreateInput) (*entity.Event, error) {
+func (uc *eventUseCase) Create(ctx context.Context, hostID uuid.UUID, in CreateInput) (*domain.Event, error) {
 	if !in.EndsAt.After(in.StartsAt) {
 		return nil, ErrInvalidTimeRange
 	}
 
 	now := nowBKK() // Thai time for all created_at / updated_at
-	e := &entity.Event{
+	e := &domain.Event{
 		ID:          uuid.New(),
 		HostID:      hostID,
 		Title:       in.Title,
 		Description: in.Description,
 		Location:    in.Location,
 		MaxCapacity: in.MaxCapacity,
-		Status:      entity.EventStatusPublished,
+		Status:      domain.EventStatusPublished,
 		StartsAt:    in.StartsAt,
 		EndsAt:      in.EndsAt,
 		CreatedAt:   now,
@@ -122,7 +122,7 @@ func (uc *eventUseCase) Create(ctx context.Context, hostID uuid.UUID, in CreateI
 // ——— GetByID —————————————————————————————————————————————————————————————————
 
 // GetByID retrieves a single event. Cache-aside pattern: check Redis, then DB.
-func (uc *eventUseCase) GetByID(ctx context.Context, id uuid.UUID) (*entity.Event, error) {
+func (uc *eventUseCase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
 	e, err := uc.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("event.GetByID: %w", err)
@@ -141,15 +141,15 @@ func (uc *eventUseCase) List(ctx context.Context, in ListInput) (*ListResult, er
 		in.Page = 1
 	}
 
-	filter := entity.EventFilter{
+	filter := domain.EventFilter{
 		Location: in.Location,
 		Search:   in.Search,
 	}
 	if in.Status != "" {
-		filter.Status = entity.EventStatus(in.Status)
+		filter.Status = domain.EventStatus(in.Status)
 	}
 
-	pagination := entity.Pagination{Page: in.Page, Limit: in.Limit}
+	pagination := domain.Pagination{Page: in.Page, Limit: in.Limit}
 
 	events, total, err := uc.repo.List(ctx, filter, pagination)
 	if err != nil {
@@ -174,7 +174,7 @@ func (uc *eventUseCase) Join(ctx context.Context, eventID, userID uuid.UUID) err
 	}
 
 	// Guard: cannot join a cancelled/completed event
-	if e.Status == entity.EventStatusCancelled || e.Status == entity.EventStatusCompleted {
+	if e.Status == domain.EventStatusCancelled || e.Status == domain.EventStatusCompleted {
 		return ErrEventNotJoinable
 	}
 

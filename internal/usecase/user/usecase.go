@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-wego/wego/internal/auth"
-	"github.com/go-wego/wego/internal/entity"
-	"github.com/go-wego/wego/internal/config"
+	"github.com/nuntawatt/meetra-backend/internal/auth"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
+	"github.com/nuntawatt/meetra-backend/internal/config"
 	"github.com/google/uuid"
 )
 
@@ -37,17 +37,17 @@ type UpdateInput struct {
 type AuthResponse struct {
 	AccessToken  string       `json:"access_token"`
 	RefreshToken string       `json:"refresh_token"`
-	User         *entity.User `json:"user"`
+	User         *domain.User `json:"user"`
 }
 
 // ——— UseCase —————————————————————————————————————————————————————————————————
 
 // UseCase defines all user business logic operations.
 type UseCase interface {
-	Register(ctx context.Context, in RegisterInput) (*entity.User, error)
+	Register(ctx context.Context, in RegisterInput) (*domain.User, error)
 	Login(ctx context.Context, in LoginInput) (*AuthResponse, error)
-	GetProfile(ctx context.Context, id uuid.UUID) (*entity.User, error)
-	UpdateProfile(ctx context.Context, id uuid.UUID, in UpdateInput) (*entity.User, error)
+	GetProfile(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	UpdateProfile(ctx context.Context, id uuid.UUID, in UpdateInput) (*domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
@@ -81,7 +81,7 @@ func New(
 
 // Register creates a new user account.
 // Returns ErrEmailTaken if the email is already in use.
-func (uc *userUseCase) Register(ctx context.Context, in RegisterInput) (*entity.User, error) {
+func (uc *userUseCase) Register(ctx context.Context, in RegisterInput) (*domain.User, error) {
 	// Check for duplicate email
 	existing, err := uc.repo.FindByEmail(ctx, in.Email)
 	if err != nil && !errors.Is(err, ErrNotFound) {
@@ -97,12 +97,12 @@ func (uc *userUseCase) Register(ctx context.Context, in RegisterInput) (*entity.
 	}
 
 	now := time.Now().UTC()
-	u := &entity.User{
+	u := &domain.User{
 		ID:        uuid.New(),
 		Username:  in.Username,
 		Email:     in.Email,
 		Password:  hashed,
-		Role:      entity.RoleUser,
+		Role:      domain.RoleUser,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -147,7 +147,7 @@ func (uc *userUseCase) Login(ctx context.Context, in LoginInput) (*AuthResponse,
 // ——— GetProfile ——————————————————————————————————————————————————————————————
 
 // GetProfile retrieves a user, with a Redis cache layer.
-func (uc *userUseCase) GetProfile(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+func (uc *userUseCase) GetProfile(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	cacheKey := fmt.Sprintf("user:%s", id)
 
 	// Try cache first
@@ -167,7 +167,7 @@ func (uc *userUseCase) GetProfile(ctx context.Context, id uuid.UUID) (*entity.Us
 // ——— UpdateProfile ———————————————————————————————————————————————————————————
 
 // UpdateProfile applies partial user profile updates.
-func (uc *userUseCase) UpdateProfile(ctx context.Context, id uuid.UUID, in UpdateInput) (*entity.User, error) {
+func (uc *userUseCase) UpdateProfile(ctx context.Context, id uuid.UUID, in UpdateInput) (*domain.User, error) {
 	u, err := uc.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("user.UpdateProfile FindByID: %w", err)

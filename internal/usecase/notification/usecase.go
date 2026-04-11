@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-wego/wego/internal/entity"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +17,7 @@ type UseCase interface {
 	NotifyJoin(ctx context.Context, hostID, eventID, joinerID uuid.UUID) error
 
 	// ListForUser returns all notifications for the given user.
-	ListForUser(ctx context.Context, userID uuid.UUID) ([]*entity.Notification, error)
+	ListForUser(ctx context.Context, userID uuid.UUID) ([]*domain.Notification, error)
 
 	// MarkRead marks a notification as read.
 	MarkRead(ctx context.Context, notifID uuid.UUID) error
@@ -41,11 +41,11 @@ func (uc *notificationUseCase) NotifyJoin(
 	ctx context.Context,
 	hostID, eventID, joinerID uuid.UUID,
 ) error {
-	n := &entity.Notification{
+	n := &domain.Notification{
 		ID:        uuid.New(),
 		UserID:    hostID, // notification recipient = event host
 		EventID:   eventID,
-		Type:      entity.NotificationTypeJoin,
+		Type:      domain.NotificationTypeJoin,
 		Message:   fmt.Sprintf("A new user has joined your event."),
 		IsRead:    false,
 		CreatedAt: time.Now().UTC(),
@@ -63,7 +63,7 @@ func (uc *notificationUseCase) NotifyJoin(
 
 // ——— ListForUser —————————————————————————————————————————————————————————————
 
-func (uc *notificationUseCase) ListForUser(ctx context.Context, userID uuid.UUID) ([]*entity.Notification, error) {
+func (uc *notificationUseCase) ListForUser(ctx context.Context, userID uuid.UUID) ([]*domain.Notification, error) {
 	return uc.repo.ListByUser(ctx, userID)
 }
 

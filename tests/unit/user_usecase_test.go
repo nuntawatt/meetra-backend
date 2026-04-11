@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-wego/wego/internal/auth"
-	"github.com/go-wego/wego/internal/config"
-	"github.com/go-wego/wego/internal/entity"
-	userUC "github.com/go-wego/wego/internal/usecase/user"
+	"github.com/nuntawatt/meetra-backend/internal/auth"
+	"github.com/nuntawatt/meetra-backend/internal/config"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
+	userUC "github.com/nuntawatt/meetra-backend/internal/usecase/user"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,24 +20,24 @@ import (
 // mockUserRepo implements user.Repository using testify/mock.
 type mockUserRepo struct{ mock.Mock }
 
-func (m *mockUserRepo) Create(ctx context.Context, u *entity.User) error {
+func (m *mockUserRepo) Create(ctx context.Context, u *domain.User) error {
 	return m.Called(ctx, u).Error(0)
 }
-func (m *mockUserRepo) FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+func (m *mockUserRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	args := m.Called(ctx, id)
-	if v, ok := args.Get(0).(*entity.User); ok {
+	if v, ok := args.Get(0).(*domain.User); ok {
 		return v, args.Error(1)
 	}
 	return nil, args.Error(1)
 }
-func (m *mockUserRepo) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
+func (m *mockUserRepo) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	args := m.Called(ctx, email)
-	if v, ok := args.Get(0).(*entity.User); ok {
+	if v, ok := args.Get(0).(*domain.User); ok {
 		return v, args.Error(1)
 	}
 	return nil, args.Error(1)
 }
-func (m *mockUserRepo) Update(ctx context.Context, u *entity.User) error {
+func (m *mockUserRepo) Update(ctx context.Context, u *domain.User) error {
 	return m.Called(ctx, u).Error(0)
 }
 func (m *mockUserRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
@@ -91,7 +91,7 @@ func TestRegister(t *testing.T) {
 				repo.On("FindByEmail", mock.Anything, "test@example.com").
 					Return(nil, userUC.ErrNotFound)
 				// Create succeeds
-				repo.On("Create", mock.Anything, mock.AnythingOfType("*entity.User")).
+				repo.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).
 					Return(nil)
 			},
 			wantErr: nil,
@@ -104,7 +104,7 @@ func TestRegister(t *testing.T) {
 				Password: "password123",
 			},
 			setup: func(repo *mockUserRepo) {
-				existing := &entity.User{ID: uuid.New(), Email: "existing@example.com"}
+				existing := &domain.User{ID: uuid.New(), Email: "existing@example.com"}
 				repo.On("FindByEmail", mock.Anything, "existing@example.com").
 					Return(existing, nil)
 			},
@@ -150,11 +150,11 @@ func TestLogin(t *testing.T) {
 			name:  "valid credentials",
 			input: userUC.LoginInput{Email: "user@example.com", Password: "password123"},
 			setup: func(repo *mockUserRepo) {
-				repo.On("FindByEmail", mock.Anything, "user@example.com").Return(&entity.User{
+				repo.On("FindByEmail", mock.Anything, "user@example.com").Return(&domain.User{
 					ID:       uuid.New(),
 					Email:    "user@example.com",
 					Password: hashed,
-					Role:     entity.RoleUser,
+					Role:     domain.RoleUser,
 				}, nil)
 			},
 			wantErr: nil,
@@ -163,11 +163,11 @@ func TestLogin(t *testing.T) {
 			name:  "wrong password",
 			input: userUC.LoginInput{Email: "user@example.com", Password: "wrongpass"},
 			setup: func(repo *mockUserRepo) {
-				repo.On("FindByEmail", mock.Anything, "user@example.com").Return(&entity.User{
+				repo.On("FindByEmail", mock.Anything, "user@example.com").Return(&domain.User{
 					ID:       uuid.New(),
 					Email:    "user@example.com",
 					Password: hashed,
-					Role:     entity.RoleUser,
+					Role:     domain.RoleUser,
 				}, nil)
 			},
 			wantErr: userUC.ErrInvalidCredentials,

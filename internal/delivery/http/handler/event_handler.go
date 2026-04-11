@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	eventUC "github.com/go-wego/wego/internal/usecase/event"
-	"github.com/go-wego/wego/pkg/response"
-	"github.com/go-wego/wego/pkg/validator"
+	eventUC "github.com/nuntawatt/meetra-backend/internal/usecase/event"
+	"github.com/nuntawatt/meetra-backend/pkg/response"
+	"github.com/nuntawatt/meetra-backend/pkg/validator"
 	"github.com/google/uuid"
 )
 
@@ -30,7 +30,7 @@ func NewEventHandler(uc eventUC.UseCase) *EventHandler {
 // @Accept       json
 // @Produce      json
 // @Param        body body event.CreateInput true "Event payload"
-// @Success      201  {object} entity.Event
+// @Success      201  {object} domain.Event
 // @Router       /api/v1/events [post]
 func (h *EventHandler) CreateEvent(c *gin.Context) {
 	hostID, err := extractUserID(c)
@@ -69,7 +69,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 // @Tags         events
 // @Produce      json
 // @Param        id   path    string  true  "Event UUID"
-// @Success      200  {object} entity.Event
+// @Success      200  {object} domain.Event
 // @Router       /api/v1/events/{id} [get]
 func (h *EventHandler) GetEvent(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))

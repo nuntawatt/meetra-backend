@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	notifUC "github.com/go-wego/wego/internal/usecase/notification"
-	"github.com/go-wego/wego/internal/entity"
+	notifUC "github.com/nuntawatt/meetra-backend/internal/usecase/notification"
+	"github.com/nuntawatt/meetra-backend/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -21,7 +21,7 @@ func NewNotificationRepo(db *sqlx.DB) notifUC.Repository {
 	return &notificationRepo{db: db}
 }
 
-func (r *notificationRepo) Create(ctx context.Context, n *entity.Notification) error {
+func (r *notificationRepo) Create(ctx context.Context, n *domain.Notification) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -33,11 +33,11 @@ func (r *notificationRepo) Create(ctx context.Context, n *entity.Notification) e
 	return err
 }
 
-func (r *notificationRepo) ListByUser(ctx context.Context, userID uuid.UUID) ([]*entity.Notification, error) {
+func (r *notificationRepo) ListByUser(ctx context.Context, userID uuid.UUID) ([]*domain.Notification, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	var notifs []*entity.Notification
+	var notifs []*domain.Notification
 	err := r.db.SelectContext(ctx, &notifs,
 		`SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
 		userID,

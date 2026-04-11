@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/go-wego/wego/pkg/response"
+	"github.com/nuntawatt/meetra-backend/pkg/response"
 )
 
 // RateLimit returns a middleware that limits requests per IP using a Redis sliding window.

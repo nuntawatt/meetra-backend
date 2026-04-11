@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-wego/wego/internal/usecase/user"
-	"github.com/go-wego/wego/pkg/response"
-	"github.com/go-wego/wego/pkg/validator"
+	"github.com/nuntawatt/meetra-backend/internal/usecase/user"
+	"github.com/nuntawatt/meetra-backend/pkg/response"
+	"github.com/nuntawatt/meetra-backend/pkg/validator"
 	"github.com/google/uuid"
 )
 
@@ -28,7 +28,7 @@ func NewUserHandler(uc user.UseCase) *UserHandler {
 // @Accept       json
 // @Produce      json
 // @Param        body body user.RegisterInput true "Registration payload"
-// @Success      201  {object} entity.User
+// @Success      201  {object} domain.User
 // @Router       /api/v1/auth/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var in user.RegisterInput
@@ -96,7 +96,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Tags         users
 // @Security     BearerAuth
 // @Produce      json
-// @Success      200 {object} entity.User
+// @Success      200 {object} domain.User
 // @Router       /api/v1/users/me [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID, err := extractUserID(c)
@@ -127,7 +127,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        body body user.UpdateInput true "Update payload"
-// @Success      200  {object} entity.User
+// @Success      200  {object} domain.User
 // @Router       /api/v1/users/me [patch]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID, err := extractUserID(c)
